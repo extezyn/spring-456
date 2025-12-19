@@ -1,0 +1,79 @@
+CREATE DATABASE lms_db;
+
+
+CREATE TABLE roles (
+    id   BIGSERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE -- ADMIN, TEACHER, STUDENT
+);
+
+CREATE TABLE users (
+    id       BIGSERIAL PRIMARY KEY,
+    username VARCHAR(50)  NOT NULL UNIQUE,
+    email    VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    enabled  BOOLEAN      NOT NULL DEFAULT TRUE,
+    role_id  BIGINT       NOT NULL,
+    CONSTRAINT fk_users_role
+        FOREIGN KEY (role_id) REFERENCES roles (id)
+);
+
+CREATE TABLE categories (
+    id   BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE courses (
+    id          BIGSERIAL PRIMARY KEY,
+    title       VARCHAR(200) NOT NULL,
+    description TEXT,
+    price       NUMERIC(10, 2) NOT NULL,
+    teacher_id  BIGINT        NOT NULL,
+    category_id BIGINT,
+    CONSTRAINT fk_courses_teacher
+        FOREIGN KEY (teacher_id) REFERENCES users (id),
+    CONSTRAINT fk_courses_category
+        FOREIGN KEY (category_id) REFERENCES categories (id)
+);
+
+CREATE TABLE lessons (
+    id        BIGSERIAL PRIMARY KEY,
+    title     VARCHAR(200) NOT NULL,
+    content   TEXT,
+    course_id BIGINT       NOT NULL,
+    CONSTRAINT fk_lessons_course
+        FOREIGN KEY (course_id) REFERENCES courses (id)
+);
+
+CREATE TABLE materials (
+    id        BIGSERIAL PRIMARY KEY,
+    file_url  TEXT        NOT NULL,
+    type      VARCHAR(20) NOT NULL, -- VIDEO, PDF
+    lesson_id BIGINT      NOT NULL,
+    CONSTRAINT fk_materials_lesson
+        FOREIGN KEY (lesson_id) REFERENCES lessons (id)
+);
+
+CREATE TABLE enrollments (
+    id              BIGSERIAL PRIMARY KEY,
+    student_id      BIGINT       NOT NULL,
+    course_id       BIGINT       NOT NULL,
+    enrollment_date TIMESTAMP    NOT NULL,
+    CONSTRAINT fk_enrollments_student
+        FOREIGN KEY (student_id) REFERENCES users (id),
+    CONSTRAINT fk_enrollments_course
+        FOREIGN KEY (course_id) REFERENCES courses (id),
+    CONSTRAINT uq_enrollment_student_course
+        UNIQUE (student_id, course_id)
+);
+
+CREATE TABLE reviews (
+    id         BIGSERIAL PRIMARY KEY,
+    rating     INT         NOT NULL, -- 1..5
+    comment    TEXT,
+    student_id BIGINT      NOT NULL,
+    course_id  BIGINT      NOT NULL,
+    CONSTRAINT fk_reviews_student
+        FOREIGN KEY (student_id) REFERENCES users (id),
+    CONSTRAINT fk_reviews_course
+        FOREIGN KEY (course_id) REFERENCES courses (id)
+);
