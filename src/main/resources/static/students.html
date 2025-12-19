@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список студентов - LMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 20px;
+        }
+
+        .navigation {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .navigation a {
+            color: #1976d2;
+            text-decoration: underline;
+            margin-right: 20px;
+            font-size: 14px;
+        }
+
+        .navigation a:hover {
+            color: #125a9c;
+        }
+
+        .section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .section-title {
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #1976d2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #125a9c;
+        }
+
+        .btn-danger {
+            background-color: #d32f2f;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b71c1c;
+        }
+
+        .link-reset {
+            color: #9c27b0;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .link-reset:hover {
+            color: #7b1fa2;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background-color: #1976d2;
+            color: white;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Список студентов</h1>
+        
+        <div class="navigation">
+            <a href="/students.html">Студенты</a>
+            <a href="/groups.html">Группы</a>
+            <a href="/profiles.html">Профили</a>
+            <a href="/courses.html">Курсы</a>
+            <a href="/enrollments.html">Записи на курсы</a>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Поиск</div>
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Поиск...">
+                <button class="btn btn-primary" onclick="searchStudents()">Поиск</button>
+                <span class="link-reset" onclick="resetSearch()">Сбросить</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Добавить студента</div>
+            <button class="btn btn-primary" onclick="openAddModal()">Добавить нового студента</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя</th>
+                        <th>Фамилия</th>
+                        <th>Отчество</th>
+                        <th>Доп. имя</th>
+                        <th>Группа</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsTableBody">
+                    <!-- Данные будут загружены через JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Модальное окно для добавления/редактирования -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div class="modal-header" id="modalTitle">Добавить студента</div>
+            <form id="studentForm">
+                <input type="hidden" id="studentId">
+                <div class="form-group">
+                    <label for="firstName">Имя *</label>
+                    <input type="text" id="firstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Фамилия *</label>
+                    <input type="text" id="lastName" required>
+                </div>
+                <div class="form-group">
+                    <label for="patronymic">Отчество</label>
+                    <input type="text" id="patronymic">
+                </div>
+                <div class="form-group">
+                    <label for="additionalName">Доп. имя</label>
+                    <input type="text" id="additionalName">
+                </div>
+                <div class="form-group">
+                    <label for="group">Группа</label>
+                    <input type="text" id="group">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-primary" onclick="saveStudent()">Сохранить</button>
+                    <button type="button" class="btn" onclick="closeModal()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        let students = [];
+        let currentEditId = null;
+
+        // Проверка авторизации
+        if (!checkAuth()) {
+            window.location.href = '/login.html';
+        } else {
+            initActivityTracking();
+            loadStudents();
+        }
+
+        async function loadStudents() {
+            const resp = await authFetch('/api/v1/users?page=0&size=100');
+            if (resp) {
+                const data = await resp.json();
+                students = data.content || [];
+                renderTable();
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = '';
+
+            if (students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">Нет данных</td></tr>';
+                return;
+            }
+
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.id || ''}</td>
+                    <td>${student.firstName || student.username || ''}</td>
+                    <td>${student.lastName || ''}</td>
+                    <td>${student.patronymic || ''}</td>
+                    <td>${student.additionalName || ''}</td>
+                    <td>${student.group || ''}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-primary btn-small" onclick="editStudent(${student.id})">Редактировать</button>
+                        <button class="btn btn-danger btn-small" onclick="logicalDelete(${student.id})">Логически удалить</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteStudent(${student.id})">Удалить</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function searchStudents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            // Фильтрация будет реализована на бэкенде или на клиенте
+            console.log('Поиск:', searchTerm);
+            // Пока просто перезагружаем список
+            loadStudents();
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            loadStudents();
+        }
+
+        function openAddModal() {
+            currentEditId = null;
+            document.getElementById('modalTitle').textContent = 'Добавить студента';
+            document.getElementById('studentForm').reset();
+            document.getElementById('studentId').value = '';
+            document.getElementById('studentModal').style.display = 'block';
+        }
+
+        function editStudent(id) {
+            const student = students.find(s => s.id === id);
+            if (!student) return;
+
+            currentEditId = id;
+            document.getElementById('modalTitle').textContent = 'Редактировать студента';
+            document.getElementById('studentId').value = student.id;
+            document.getElementById('firstName').value = student.firstName || student.username || '';
+            document.getElementById('lastName').value = student.lastName || '';
+            document.getElementById('patronymic').value = student.patronymic || '';
+            document.getElementById('additionalName').value = student.additionalName || '';
+            document.getElementById('group').value = student.group || '';
+            document.getElementById('studentModal').style.display = 'block';
+        }
+
+        async function saveStudent() {
+            const form = document.getElementById('studentForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const studentData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                patronymic: document.getElementById('patronymic').value,
+                additionalName: document.getElementById('additionalName').value,
+                group: document.getElementById('group').value
+            };
+
+            try {
+                if (currentEditId) {
+                    // Обновление существующего студента
+                    const resp = await authFetch(`/api/v1/users/${currentEditId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            ...studentData,
+                            id: currentEditId,
+                            username: studentData.firstName.toLowerCase(),
+                            email: `${studentData.firstName.toLowerCase()}@example.com`,
+                            enabled: true,
+                            roleName: 'STUDENT'
+                        })
+                    });
+                    if (resp && resp.ok) {
+                        alert('Студент успешно обновлён');
+                        closeModal();
+                        loadStudents();
+                    }
+                } else {
+                    // Создание нового студента
+                    const resp = await authFetch('/api/v1/users', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            ...studentData,
+                            username: studentData.firstName.toLowerCase(),
+                            email: `${studentData.firstName.toLowerCase()}@example.com`,
+                            password: 'TempPass123!',
+                            enabled: true,
+                            roleName: 'STUDENT'
+                        })
+                    });
+                    if (resp && resp.ok) {
+                        alert('Студент успешно добавлен');
+                        closeModal();
+                        loadStudents();
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                alert('Ошибка при сохранении студента');
+            }
+        }
+
+        async function logicalDelete(id) {
+            if (!confirm('Вы уверены, что хотите логически удалить этого студента?')) return;
+            
+            const resp = await authFetch(`/api/v1/users/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    id: id,
+                    enabled: false
+                })
+            });
+            
+            if (resp && resp.ok) {
+                alert('Студент логически удалён');
+                loadStudents();
+            }
+        }
+
+        async function deleteStudent(id) {
+            if (!confirm('Вы уверены, что хотите удалить этого студента? Это действие нельзя отменить.')) return;
+            
+            const resp = await authFetch(`/api/v1/users/${id}`, {
+                method: 'DELETE'
+            });
+            
+            if (resp && (resp.ok || resp.status === 204)) {
+                alert('Студент успешно удалён');
+                loadStudents();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('studentModal').style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('studentModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
+

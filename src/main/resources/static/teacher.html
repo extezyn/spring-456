@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель преподавателя</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #fafafa; }
+        .container { max-width: 800px; margin: 40px auto; padding: 24px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { margin-bottom: 8px; }
+        button { margin: 4px 4px 4px 0; padding: 6px 12px; }
+        pre { background: #f5f5f5; padding: 8px; border-radius: 4px; max-height: 300px; overflow: auto; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        a { color: #1976d2; }
+        label { display: block; margin-top: 8px; }
+        input, textarea { width: 100%; box-sizing: border-box; padding: 4px; }
+        .status { color: #388e3c; font-size: 12px; margin-top: 4px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="topbar">
+        <div>
+            <h1>Панель преподавателя</h1>
+            <div>Роль: TEACHER</div>
+            <div class="status" id="status">Сессия активна</div>
+        </div>
+        <div>
+            <a href="/admin.html">Админ</a> |
+            <a href="/student.html">Студент</a> |
+            <a href="#" onclick="logout(); return false;">Выход</a>
+        </div>
+    </div>
+
+    <h3>Ваши курсы</h3>
+    <label>ID преподавателя:
+        <input id="teacherId" type="number" value="2">
+    </label>
+    <button onclick="loadMyCourses()">Загрузить мои курсы</button>
+
+    <h3>Создать курс</h3>
+    <label>Название:
+        <input id="title" type="text" value="Новый курс">
+    </label>
+    <label>Описание:
+        <textarea id="description">Описание курса</textarea>
+    </label>
+    <label>Цена:
+        <input id="price" type="number" value="1000">
+    </label>
+    <label>ID категории:
+        <input id="categoryId" type="number" value="1">
+    </label>
+    <button onclick="createCourse()">Создать курс</button>
+
+    <h3>Ответ API</h3>
+    <pre id="output"></pre>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>
+    // Проверка авторизации при загрузке
+    if (!checkAuth()) {
+        // checkAuth уже перенаправит на login
+    } else {
+        initActivityTracking();
+    }
+
+    async function loadMyCourses() {
+        const teacherId = document.getElementById('teacherId').value;
+        const resp = await authFetch(`/api/v1/courses/teacher/${teacherId}?page=0&size=20`);
+        if (resp) {
+            const data = await resp.json().catch(() => ({}));
+            document.getElementById('output').textContent =
+                'STATUS: ' + resp.status + '\n' + JSON.stringify(data, null, 2);
+        }
+    }
+
+    async function createCourse() {
+        const teacherId = Number(document.getElementById('teacherId').value);
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        const price = Number(document.getElementById('price').value);
+        const categoryId = Number(document.getElementById('categoryId').value);
+
+        const resp = await authFetch('/api/v1/courses', {
+            method: 'POST',
+            body: JSON.stringify({
+                title,
+                description,
+                price,
+                teacherId,
+                categoryId
+            })
+        });
+        if (resp) {
+            const data = await resp.json().catch(() => ({}));
+            document.getElementById('output').textContent =
+                'STATUS: ' + resp.status + '\n' + JSON.stringify(data, null, 2);
+        }
+    }
+</script>
+</body>
+</html>

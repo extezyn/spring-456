@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: lms-postgres
+    environment:
+      POSTGRES_DB: lms_db
+      POSTGRES_USER: lms_user
+      POSTGRES_PASSWORD: lms_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - lms_db_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: lms-app
+    depends_on:
+      - db
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/lms_db
+      DB_USERNAME: lms_user
+      DB_PASSWORD: lms_password
+      JWT_SECRET: my-super-long-dev-secret-key-change-me-1234567890
+      JWT_EXPIRATION_SECONDS: 3600
+      PORT: 8080
+    ports:
+      - "8080:8080"
+
+volumes:
+  lms_db_data:
+
+

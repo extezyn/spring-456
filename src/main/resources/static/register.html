@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация в LMS</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .container { max-width: 400px; margin: 80px auto; padding: 24px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; margin-bottom: 16px; }
+        label { display: block; margin-top: 12px; }
+        input { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; }
+        button { margin-top: 16px; width: 100%; padding: 10px; background: #388e3c; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #2e7030; }
+        .error { color: #d32f2f; margin-top: 8px; }
+        .link { margin-top: 12px; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Регистрация</h1>
+    <label>Логин
+        <input id="username" type="text">
+    </label>
+    <label>Email
+        <input id="email" type="email">
+    </label>
+    <label>Пароль
+        <input id="password" type="password">
+        <small style="color: #666; font-size: 12px; display: block; margin-top: 4px;">
+            Требования: минимум 8 символов, заглавная и строчная буквы, цифра, специальный символ (!@#$%^&*()_+-=[]{}|;:,.<>?)
+        </small>
+    </label>
+    <button onclick="register()">Зарегистрироваться</button>
+    <div id="error" class="error"></div>
+    <div class="link">
+        Уже есть аккаунт? <a href="/login.html">Войти</a>
+    </div>
+</div>
+<script>
+    async function register() {
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorEl = document.getElementById('error');
+        errorEl.textContent = '';
+
+        try {
+            const resp = await fetch('/api/v1/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) {
+                errorEl.textContent = data.message || 'Ошибка регистрации';
+                return;
+            }
+            alert('Регистрация успешна. Теперь войдите.');
+            window.location.href = '/login.html';
+        } catch (e) {
+            errorEl.textContent = 'Сервер недоступен';
+        }
+    }
+</script>
+</body>
+</html>
+
+

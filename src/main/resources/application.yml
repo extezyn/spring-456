@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/lms_db}
+    username: ${DB_USERNAME:lms_user}
+    password: ${DB_PASSWORD:lms_password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    open-in-view: false
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+server:
+  port: ${PORT:8080}
+
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:my-super-long-dev-secret-key-change-me-1234567890}
+      expiration-in-seconds: ${JWT_EXPIRATION_SECONDS:180}  # 3 минуты для автоматического выхода
+      refresh-expiration-in-seconds: ${JWT_REFRESH_EXPIRATION_SECONDS:900}  # 15 минут для refresh token
+
+logging:
+  level:
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+
+# Swagger/OpenAPI настройки
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
